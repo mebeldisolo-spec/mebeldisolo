@@ -243,6 +243,22 @@
     .blocked-card .ref-code { display: inline-block; background: var(--bg-light); padding: 6px 14px; border-radius: 8px; font-family: monospace; font-size: 13px; color: var(--text-muted); margin: 12px 0; border: 1px solid var(--border); }
     .blocked-card .btn { margin-top: 16px; }
 
+    
+    /* ===== HERO CAROUSEL ===== */
+    .hero-carousel { position: relative; height: 420px; overflow: hidden; border-radius: 0; }
+    .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease-in-out; }
+    .hero-slide.active { opacity: 1; }
+    .hero-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.5) 100%); }
+    .hero-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 5; }
+    .hero-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: all 0.3s; border: none; }
+    .hero-dot.active { background: white; width: 28px; border-radius: 5px; }
+    .hero-dot:hover { background: rgba(255,255,255,0.7); }
+    .hero-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.2); color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.2s; backdrop-filter: blur(4px); }
+    .hero-nav:hover { background: rgba(255,255,255,0.35); }
+    .hero-nav.prev { left: 16px; }
+    .hero-nav.next { right: 16px; }
+
     @media (max-width: 768px) {
       .hero h2 { font-size: 26px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -262,6 +278,7 @@
       .mobile-menu { display: none !important; }
     }
   </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -318,10 +335,25 @@
 
 <!-- HOME -->
 <div class="page active" id="page-home">
-  <section class="hero">
-    <h2>Solusi Kebutuhan Rumah Tangga Anda</h2>
-    <p>Toko Mebel Pelangi Solo — furniture berkualitas dengan harga terjangkau. Ramah. Pepak. Murah.</p>
-    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+  <section class="hero-carousel" id="hero-carousel">
+    <div class="hero-slide active">
+      <img src="toko-pelangi.png" alt="Toko Pelangi Furniture Solo">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-slide">
+      <img src="springbed-pelangi.png" alt="Springbed Pelangi">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-slide">
+      <img src="sofa-pelangi.png" alt="Sofa Pelangi">
+      <div class="hero-overlay"></div>
+    </div>
+    <button class="hero-nav prev" onclick="moveHero(-1)">‹</button>
+    <button class="hero-nav next" onclick="moveHero(1)">›</button>
+    <div class="hero-dots">
+      <button class="hero-dot active" onclick="setHeroSlide(0)"></button>
+      <button class="hero-dot" onclick="setHeroSlide(1)"></button>
+      <button class="hero-dot" onclick="setHeroSlide(2)"></button>
     </div>
   </section>
 
@@ -569,7 +601,7 @@
         </div>
         <div class="contact-item">
           <strong>🕐 Jam Operasional</strong>
-          <span>Senin - Sabtu: 08.00 - 18.00<br>Minggu: 09.00 - 18.00</span>
+          <span>Senin - Sabtu: 08.00 - 17.00<br>Minggu: 09.00 - 15.00</span>
         </div>
         <div class="contact-item">
           <strong>📧 Email</strong>
@@ -1389,7 +1421,7 @@
   // ============================================================
   // REFERRAL TRACKING
   // ============================================================
-  const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbzgXPsb3B0xgC1TQwkwCPndv0xf_zkiAWCVD6gUW06BzYI-pH9KbIBwFiWzBN9HAapbhA/exec';
+  const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbwx3H5V8LbiD1xUJpaTHYTfJ0-rP6ngkmLFXd4VBIR3XMraKPOHVyMfSH56Nse4oyz0BA/exec';
   const urlParams = new URLSearchParams(window.location.search);
   const refCode = urlParams.get('ref');
 
@@ -1418,8 +1450,39 @@
     }
   }
 
+  // ============================================================
+  // HERO CAROUSEL (auto-slide 10 detik)
+  // ============================================================
+  let heroCurrent = 0;
+  const heroSlides = document.querySelectorAll('.hero-slide');
+  const heroDots = document.querySelectorAll('.hero-dot');
+  const totalHeroSlides = heroSlides.length;
+
+  function updateHero() {
+    heroSlides.forEach((s, i) => s.classList.toggle('active', i === heroCurrent));
+    heroDots.forEach((d, i) => d.classList.toggle('active', i === heroCurrent));
+  }
+
+  function moveHero(dir) {
+    heroCurrent = (heroCurrent + dir + totalHeroSlides) % totalHeroSlides;
+    updateHero();
+  }
+
+  function setHeroSlide(idx) {
+    heroCurrent = idx;
+    updateHero();
+  }
+
+  if (totalHeroSlides > 0) {
+    setInterval(() => moveHero(1), 10000);
+  }
+
+  // ============================================================
+  // REFERRAL STATUS CHECK
+  // ============================================================
   checkReferralStatus();
-    // ============================================================
+
+  // ============================================================
   // INIT
   // ============================================================
   initDots();
