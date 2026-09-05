@@ -269,6 +269,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -664,7 +665,7 @@
 
 <div class="toast" id="toast">Tersalin!</div>
 <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-<a class="sticky-wa" id="sticky-wa" href="https://wa.me/6289523047318" target="_blank">💬 Chat WhatsApp</a>
+<a class="sticky-wa" href="https://wa.me/6289523047318" target="_blank">💬 Chat WhatsApp</a>
 
 <script>
 
@@ -944,15 +945,12 @@
 
     let msg = 'Halo *' + (sales || 'Pelangi Furniture') + '*, saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + ').';
     if (store) {
-      msg += '
-
-Saya diarahkan oleh link referral dari toko *' + store + '*';
+      msg += '\n\nSaya diarahkan oleh link referral dari toko *' + store + '*';
     }
     if (ref) {
       msg += ' (Ref: ' + ref + ')';
     }
-    msg += '
-Mohon info stok dan cara pemesanannya.';
+    msg += '\nMohon info stok dan cara pemesanannya.';
     window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
   }
 
@@ -1423,46 +1421,11 @@ Mohon info stok dan cara pemesanannya.';
   // ============================================================
   // REFERRAL TRACKING (dengan Toko)
   // ============================================================
-  // Ganti URL ini dengan URL Apps Script Anda setelah deploy
-  // ⚠️ PENTING: Ganti URL di bawah ini dengan URL Apps Script Anda setelah deploy!
-  const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbyNr1LYLQbyk0s0YS-th8U5Si1MF6X02dh80MQCZMxGcBWEHYPNKsnnbGMj0n73xHa8/exec';
+  const GAS_URL_CUSTOMER = ‘https://script.google.com/macros/s/AKfycbyNr1LYLQbyk0s0YS-th8U5Si1MF6X02dh80MQCZMxGcBWEHYPNKsnnbGMj0n73xHa8/exec';
   const urlParams = new URLSearchParams(window.location.search);
   const refCode = urlParams.get('ref');
-  let currentStore = sessionStorage.getItem('pelangi_store') || '';
   let currentRefCode = sessionStorage.getItem('pelangi_ref') || '';
-
-  function showStoreBadge(storeName, salesName, salesPhone) {
-    const bar = document.getElementById('store-badge-bar');
-    const nameEl = document.getElementById('store-name');
-    const salesEl = document.getElementById('store-sales-name');
-    const waBtn = document.getElementById('store-wa-btn');
-    const stickyWa = document.getElementById('sticky-wa');
-
-    if (bar && nameEl && storeName && storeName !== '-') {
-      nameEl.textContent = storeName;
-      bar.classList.add('active');
-    }
-
-    if (salesName && salesEl) {
-      salesEl.textContent = 'Sales: ' + salesName;
-    }
-
-    // Update semua tombol WA ke nomor sales
-    if (salesPhone) {
-      const waUrl = 'https://wa.me/' + salesPhone;
-      if (waBtn) {
-        waBtn.href = waUrl;
-        waBtn.style.display = 'inline-block';
-      }
-      if (stickyWa) {
-        stickyWa.href = waUrl;
-        stickyWa.textContent = '💬 Chat ' + salesName;
-      }
-      // Simpan nomor default untuk buyNow
-      window.__salesPhone = salesPhone;
-      window.__salesName = salesName;
-    }
-  }
+  let currentStore = sessionStorage.getItem('pelangi_store') || '';
 
   async function checkReferralStatus() {
     // Kalau tidak ada ref di URL, cek sessionStorage (dari kunjungan sebelumnya)
@@ -1512,6 +1475,39 @@ Mohon info stok dan cara pemesanannya.';
       console.log('Status check failed, allowing access:', err);
       if (currentStore) showStoreBadge(currentStore);
       return true;
+    }
+  }
+
+  function showStoreBadge(storeName, salesName, salesPhone) {
+    const bar = document.getElementById('store-badge-bar');
+    const nameEl = document.getElementById('store-name');
+    const salesEl = document.getElementById('store-sales-name');
+    const waBtn = document.getElementById('store-wa-btn');
+    const stickyWa = document.getElementById('sticky-wa');
+
+    if (bar && nameEl && storeName && storeName !== '-') {
+      nameEl.textContent = storeName;
+      bar.classList.add('active');
+    }
+
+    if (salesName && salesEl) {
+      salesEl.textContent = 'Sales: ' + salesName;
+    }
+
+    // Update semua tombol WA ke nomor sales
+    if (salesPhone) {
+      const waUrl = 'https://wa.me/' + salesPhone;
+      if (waBtn) {
+        waBtn.href = waUrl;
+        waBtn.style.display = 'inline-block';
+      }
+      if (stickyWa) {
+        stickyWa.href = waUrl;
+        stickyWa.textContent = '💬 Chat ' + salesName;
+      }
+      // Simpan nomor default untuk buyNow
+      window.__salesPhone = salesPhone;
+      window.__salesName = salesName;
     }
   }
 
