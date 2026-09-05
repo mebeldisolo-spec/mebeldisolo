@@ -268,6 +268,7 @@
       .mobile-menu { display: none !important; }
     }
   </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -297,9 +298,10 @@
 
 <!-- STORE BADGE (muncul kalau ada referral dengan toko) -->
 <div class="store-badge-bar" id="store-badge-bar">
-  <span>🏪 Anda dilayani oleh toko:</span>
+  <span>🏪 Anda dilayani oleh:</span>
   <span class="store-name" id="store-name">-</span>
-  <span style="font-size:11px;opacity:0.8;">Pesanan akan diproses & dikirim dari toko ini</span>
+  <span style="font-size:11px;opacity:0.8;" id="store-sales-name"></span>
+  <a id="store-wa-btn" href="#" target="_blank" style="background:rgba(255,255,255,0.2);color:white;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;margin-left:8px;display:none;">💬 Chat Sales</a>
 </div>
 
 <nav class="navbar">
@@ -662,7 +664,7 @@
 
 <div class="toast" id="toast">Tersalin!</div>
 <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-<a class="sticky-wa" href="https://wa.me/6289523047318" target="_blank">💬 Chat WhatsApp</a>
+<a class="sticky-wa" id="sticky-wa" href="https://wa.me/6289523047318" target="_blank">💬 Chat WhatsApp</a>
 
 <script>
 
@@ -936,7 +938,11 @@
   function buyNow(product, price) {
     const store = sessionStorage.getItem('pelangi_store') || '';
     const ref = sessionStorage.getItem('pelangi_ref') || '';
-    let msg = 'Halo Pelangi Furniture, saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + ').';
+    const sales = sessionStorage.getItem('pelangi_sales') || '';
+    // Gunakan nomor sales kalau ada, kalau tidak fallback ke nomor pusat
+    const phone = window.__salesPhone || sessionStorage.getItem('pelangi_phone') || '6289523047318';
+
+    let msg = 'Halo *' + (sales || 'Pelangi Furniture') + '*, saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + ').';
     if (store) {
       msg += '
 
@@ -947,7 +953,7 @@ Saya diarahkan oleh link referral dari toko *' + store + '*';
     }
     msg += '
 Mohon info stok dan cara pemesanannya.';
-    window.open('https://wa.me/6289523047318?text=' + encodeURIComponent(msg), '_blank');
+    window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
   }
 
   function copyProduct(name) {
@@ -1425,19 +1431,46 @@ Mohon info stok dan cara pemesanannya.';
   let currentStore = sessionStorage.getItem('pelangi_store') || '';
   let currentRefCode = sessionStorage.getItem('pelangi_ref') || '';
 
-  function showStoreBadge(storeName) {
+  function showStoreBadge(storeName, salesName, salesPhone) {
     const bar = document.getElementById('store-badge-bar');
     const nameEl = document.getElementById('store-name');
+    const salesEl = document.getElementById('store-sales-name');
+    const waBtn = document.getElementById('store-wa-btn');
+    const stickyWa = document.getElementById('sticky-wa');
+
     if (bar && nameEl && storeName && storeName !== '-') {
       nameEl.textContent = storeName;
       bar.classList.add('active');
+    }
+
+    if (salesName && salesEl) {
+      salesEl.textContent = 'Sales: ' + salesName;
+    }
+
+    // Update semua tombol WA ke nomor sales
+    if (salesPhone) {
+      const waUrl = 'https://wa.me/' + salesPhone;
+      if (waBtn) {
+        waBtn.href = waUrl;
+        waBtn.style.display = 'inline-block';
+      }
+      if (stickyWa) {
+        stickyWa.href = waUrl;
+        stickyWa.textContent = '💬 Chat ' + salesName;
+      }
+      // Simpan nomor default untuk buyNow
+      window.__salesPhone = salesPhone;
+      window.__salesName = salesName;
     }
   }
 
   async function checkReferralStatus() {
     // Kalau tidak ada ref di URL, cek sessionStorage (dari kunjungan sebelumnya)
     if (!refCode) {
-      if (currentStore) showStoreBadge(currentStore);
+      const savedStore = sessionStorage.getItem('pelangi_store');
+      const savedSales = sessionStorage.getItem('pelangi_sales');
+      const savedPhone = sessionStorage.getItem('pelangi_phone');
+      if (savedStore) showStoreBadge(savedStore, savedSales, savedPhone);
       return true;
     }
 
@@ -1453,13 +1486,15 @@ Mohon info stok dan cara pemesanannya.';
       const data = await res.json();
 
       if (data.success && data.active === true) {
-        // Simpan toko ke sessionStorage
+        // Simpan toko & sales ke sessionStorage
         if (data.store && data.store !== '-') {
           currentStore = data.store;
           currentRefCode = refCode;
           sessionStorage.setItem('pelangi_store', data.store);
           sessionStorage.setItem('pelangi_ref', refCode);
-          showStoreBadge(data.store);
+          sessionStorage.setItem('pelangi_sales', data.name || '');
+          sessionStorage.setItem('pelangi_phone', data.phone || '');
+          showStoreBadge(data.store, data.name, data.phone);
         }
         // Track click (fire and forget)
         fetch(GAS_URL_CUSTOMER + '?action=trackClick&ref=' + encodeURIComponent(refCode))
