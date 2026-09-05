@@ -144,6 +144,12 @@
     .countdown-item { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-weight: 600; font-variant-numeric: tabular-nums; }
     .countdown-label { font-size: 10px; opacity: 0.8; font-weight: 400; }
 
+    
+    /* ===== STORE BADGE ===== */
+    .store-badge-bar { background: linear-gradient(90deg, #3730a3, #4f46e5); color: white; padding: 10px 24px; text-align: center; font-size: 13px; display: none; align-items: center; justify-content: center; gap: 10px; }
+    .store-badge-bar.active { display: flex; }
+    .store-badge-bar .store-name { font-weight: 700; background: rgba(255,255,255,0.2); padding: 3px 12px; border-radius: 20px; }
+
     .contact-box { background: var(--bg-light); border-radius: 16px; padding: 40px; text-align: center; }
     .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-top: 28px; }
     .contact-item { padding: 20px; }
@@ -286,6 +292,14 @@
     <div><div class="countdown-item" id="cd-minutes">00</div><div class="countdown-label">Menit</div></div>
     <div><div class="countdown-item" id="cd-seconds">00</div><div class="countdown-label">Detik</div></div>
   </div>
+</div>
+
+
+<!-- STORE BADGE (muncul kalau ada referral dengan toko) -->
+<div class="store-badge-bar" id="store-badge-bar">
+  <span>🏪 Anda dilayani oleh toko:</span>
+  <span class="store-name" id="store-name">-</span>
+  <span style="font-size:11px;opacity:0.8;">Pesanan akan diproses & dikirim dari toko ini</span>
 </div>
 
 <nav class="navbar">
@@ -920,7 +934,16 @@
   // ACTIONS
   // ============================================================
   function buyNow(product, price) {
-    const msg = 'Halo Pelangi Furniture, saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + '). Mohon info stok dan cara pemesanannya.';
+    const store = sessionStorage.getItem('pelangi_store') || '';
+    const ref = sessionStorage.getItem('pelangi_ref') || '';
+    let msg = 'Halo Pelangi Furniture, saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + ').';
+    if (store) {
+      msg += '\n\nSaya diarahkan oleh link referral dari toko *' + store + '*';
+    }
+    if (ref) {
+      msg += ' (Ref: ' + ref + ')';
+    }
+    msg += '\nMohon info stok dan cara pemesanannya.';
     window.open('https://wa.me/6289523047318?text=' + encodeURIComponent(msg), '_blank');
   }
 
@@ -1389,21 +1412,36 @@
   }
 
   // ============================================================
-  // REFERRAL TRACKING
+  // REFERRAL TRACKING (dengan Toko)
   // ============================================================
-  const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbzgXPsb3B0xgC1TQwkwCPndv0xf_zkiAWCVD6gUW06BzYI-pH9KbIBwFiWzBN9HAapbhA/exec';
+  const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbyNr1LYLQbyk0s0YS-th8U5Si1MF6X02dh80MQCZMxGcBWEHYPNKsnnbGMj0n73xHa8/exec';
   const urlParams = new URLSearchParams(window.location.search);
   const refCode = urlParams.get('ref');
+  let currentStore = sessionStorage.getItem('pelangi_store') || '';
 
   async function checkReferralStatus() {
-    if (!refCode) return true;
-    if (!GAS_URL_CUSTOMER || !GAS_URL_CUSTOMER.includes('script.google.com')) return true;
+    if (!refCode) {
+      // Jika tidak ada ref code, cek apakah ada store tersimpan
+      if (currentStore) showStoreBadge(currentStore);
+      return true;
+    }
+    if (!GAS_URL_CUSTOMER || !GAS_URL_CUSTOMER.includes('script.google.com')) {
+      if (currentStore) showStoreBadge(currentStore);
+      return true;
+    }
 
     try {
       const res = await fetch(GAS_URL_CUSTOMER + '?action=checkStatus&ref=' + encodeURIComponent(refCode));
       const data = await res.json();
 
       if (data.success && data.active === true) {
+        // Simpan toko ke sessionStorage
+        if (data.store && data.store !== '-') {
+          currentStore = data.store;
+          sessionStorage.setItem('pelangi_store', data.store);
+          sessionStorage.setItem('pelangi_ref', refCode);
+          showStoreBadge(data.store);
+        }
         fetch(GAS_URL_CUSTOMER + '?action=trackClick&ref=' + encodeURIComponent(refCode))
           .then(() => console.log('Referral click tracked:', refCode))
           .catch(() => console.log('Tracking failed'));
@@ -1416,7 +1454,17 @@
       }
     } catch (err) {
       console.log('Status check failed, allowing access:', err);
+      if (currentStore) showStoreBadge(currentStore);
       return true;
+    }
+  }
+
+  function showStoreBadge(storeName) {
+    const bar = document.getElementById('store-badge-bar');
+    const nameEl = document.getElementById('store-name');
+    if (bar && nameEl && storeName) {
+      nameEl.textContent = storeName;
+      bar.classList.add('active');
     }
   }
 
