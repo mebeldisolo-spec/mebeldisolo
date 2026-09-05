@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Referral - Pelangi Furniture</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='14' fill='%23c41e3a'/%3E%3Cpath d='M20 68 Q20 22 50 22 Q80 22 80 68' stroke='%23ffd700' stroke-width='7' fill='none' stroke-linecap='round'/%3E%3Cpath d='M32 68 Q32 34 50 34 Q68 34 68 68' stroke='%23ffd700' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='52' r='9' fill='%23ffd700'/%3E%3Ccircle cx='50' cy='52' r='3.5' fill='%23c41e3a'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --primary: #c41e3a; --primary-dark: #a01830; --gold: #ffd700;
+      --text: #1a1a1a; --text-secondary: #666; --text-muted: #999;
+      --bg: #f5f5f5; --bg-card: #ffffff; --border: #e5e5e5;
+      --success: #22c55e; --warning: #f59e0b; --danger: #ef4444;
+      --radius: 10px; --shadow: 0 2px 8px rgba(0,0,0,0.06); --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); color: var(--text); line-height: 1.6; background: var(--bg); min-height: 100vh; }
+
+    .header { background: linear-gradient(135deg, var(--primary) 0%, #e85d04 100%); color: white; padding: 24px; }
+    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
+    .header-brand svg { width: 44px; height: 44px; }
+    .header-brand h1 { font-size: 20px; font-weight: 600; }
+    .header-brand span { font-size: 12px; opacity: 0.9; }
+    .header-badge { background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+    .setup-alert { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .setup-alert h3 { font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 10px; }
+    .setup-alert ol { font-size: 13px; color: #78350f; padding-left: 20px; line-height: 2; }
+    .setup-alert code { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+    .setup-alert input { width: 100%; padding: 12px; border: 1px solid #fcd34d; border-radius: 8px; margin-top: 10px; font-size: 13px; }
+    .setup-alert .btn-save { margin-top: 10px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .setup-alert .btn-save:hover { background: var(--primary-dark); }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; box-shadow: var(--shadow); }
+    .stat-card .number { font-size: 32px; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+    .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    .form-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .form-row input, .form-row select { flex: 1; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; font-family: var(--font); min-width: 140px; background: white; }
+    .form-row input:focus, .form-row select:focus { border-color: var(--primary); }
+    .btn { padding: 12px 24px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn:hover { background: var(--primary-dark); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-outline { background: white; color: var(--primary); border: 1px solid var(--primary); }
+    .btn-outline:hover { background: #fff5f5; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-success { background: var(--success); }
+    .btn-success:hover { background: #16a34a; }
+    .btn-warning { background: var(--warning); }
+    .btn-warning:hover { background: #d97706; }
+
+    .link-box { background: #f8f9fa; border: 1px dashed var(--border); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 13px; word-break: break-all; color: var(--text-secondary); margin: 12px 0; }
+    .link-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-secondary); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; background: #f8f9fa; }
+    tr:hover { background: #f8f9fa; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-neutral { background: #f3f4f6; color: var(--text-secondary); }
+    .badge-store { background: #e0e7ff; color: #3730a3; }
+
+    .empty { text-align: center; padding: 48px; color: var(--text-muted); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: white; padding: 14px 24px; border-radius: 10px; font-size: 13px; opacity: 0; transform: translateY(20px); transition: all 0.3s; z-index: 200; box-shadow: var(--shadow-lg); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+
+    .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer { text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; }
+
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .filter-bar select { padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: white; }
+
+    @media (max-width: 768px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .header-inner { flex-direction: column; gap: 10px; text-align: center; }
+      .form-row { flex-direction: column; }
+      .container { padding: 16px; }
+    }
+  </style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="14" fill="rgba(255,255,255,0.2)"/><path d="M20 68 Q20 22 50 22 Q80 22 80 68" stroke="#ffd700" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M32 68 Q32 34 50 34 Q68 34 68 68" stroke="#ffd700" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="50" cy="52" r="9" fill="#ffd700"/><circle cx="50" cy="52" r="3.5" fill="#c41e3a"/></svg>
+      <div>
+        <h1>PELANGI FURNITURE</h1>
+        <span>Dashboard Referral Sales & Toko</span>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button class="header-badge" id="btn-setup-toggle" onclick="toggleSetupBox()" style="cursor:pointer; background:rgba(255,255,255,0.2); border:none; color:white; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; font-family:inherit;">⚙️ Setup URL</button>
+      <div class="header-badge">🔒 Internal Only</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Setup Alert -->
+  <div class="setup-alert" id="setup-box">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+      <h3>⚠️ Setup Google Apps Script</h3>
+      <button onclick="toggleSetupBox()" style="background:none; border:none; font-size:18px; cursor:pointer; color:#92400e;">✕</button>
+    </div>
+    <ol>
+      <li>Buat Google Sheet baru</li>
+      <li>Extensions → Apps Script → hapus kode default</li>
+      <li>Paste kode dari file <code>apps-script-backend.gs</code> (versi Toko)</li>
+      <li>Deploy → New Deployment → Web App (Execute as: Me, Access: Anyone)</li>
+      <li>Copy URL deployment, paste di bawah:</li>
+    </ol>
+    <input type="url" id="gas-url" placeholder="https://script.google.com/macros/s/XXXXXXXX/exec" value="">
+    <button class="btn-save" onclick="saveGasUrl()">Simpan & Hubungkan</button>
+    <div id="saved-url-info" style="display:none; margin-top:10px; padding:10px; background:#dcfce7; border-radius:6px; font-size:12px; color:#166534;">
+      ✅ URL tersimpan: <code id="saved-url-display" style="word-break:break-all;"></code>
+    </div>
+    <p style="font-size:11px;color:#92400e;margin-top:8px;">URL tersimpan di localStorage browser ini. Klik "Setup URL" di header untuk mengubah kapan saja.</p>
+  </div>
+
+  <!-- Filter Toko -->
+  <div class="filter-bar" id="store-filter-bar" style="display:none;">
+    <span style="font-size:13px;color:var(--text-secondary);">Filter Toko:</span>
+    <select id="filter-store" onchange="applyStoreFilter()">
+      <option value="all">Semua Toko</option>
+    </select>
+    <button class="btn btn-sm btn-outline" onclick="applyStoreFilter()">Terapkan</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats" id="stats-row">
+    <div class="stat-card"><div class="number" id="stat-links">0</div><div class="label">Link Aktif / Total</div></div>
+    <div class="stat-card"><div class="number" id="stat-clicks">0</div><div class="label">Klik (Link Aktif)</div></div>
+    <div class="stat-card"><div class="number" id="stat-sales">0</div><div class="label">Jual (Link Aktif)</div></div>
+    <div class="stat-card"><div class="number" id="stat-revenue">Rp 0</div><div class="label">Pendapatan</div></div>
+  </div>
+
+  <!-- Create Referral -->
+  <div class="card">
+    <h2>➕ Buat Link Referral Baru</h2>
+    <div class="form-row">
+      <input type="text" id="ref-name" placeholder="Nama Sales / Referrer (contoh: Budi)" maxlength="25">
+      <select id="ref-store">
+        <option value="">Pilih Toko...</option>
+        <option value="Radjiman 1">🏪 Radjiman 1</option>
+        <option value="Radjiman 2">🏪 Radjiman 2</option>
+        <option value="Gentan">🏪 Gentan</option>
+        <option value="Klodran">🏪 Klodran</option>
+        <option value="Mojosongo">🏪 Mojosongo</option>
+        <option value="Online">🌐 Online</option>
+      </select>
+      <button class="btn" id="btn-create" onclick="createReferral()">Generate Link</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);">Link akan otomatis masuk ke Google Sheets dengan informasi Toko. Customer akan melihat toko yang melayani mereka.</p>
+
+    <div id="ref-result" style="display:none; margin-top:16px;">
+      <p style="font-size:13px;font-weight:600;margin-bottom:6px;">Link Referral:</p>
+      <div class="link-box" id="ref-link"></div>
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+        <span class="badge badge-store" id="ref-store-badge"></span>
+        <span style="font-size:12px;color:var(--text-muted);">Customer akan diarahkan ke toko ini</span>
+      </div>
+      <div class="link-actions">
+        <button class="btn btn-sm" onclick="copyRef()">📋 Salin Link</button>
+        <button class="btn btn-sm btn-success" onclick="shareWhatsApp()">💬 Share WA</button>
+        <button class="btn btn-sm btn-outline" onclick="shareTelegram()">✈️ Share Telegram</button>
+        <button class="btn btn-sm btn-outline" onclick="shareEmail()">📧 Share Email</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="card">
+    <h2>⚡ Cepat: Catat Penjualan</h2>
+    <div class="form-row">
+      <select id="quick-ref"><option value="">Pilih Kode Referral...</option></select>
+      <select id="quick-product"><option value="">Pilih Produk...</option></select>
+      <input type="number" id="quick-amount" placeholder="Harga (Rp)" style="max-width:140px;">
+      <button class="btn btn-success" onclick="quickSale()">✓ Catat Jual</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);">Pilih produk dari daftar, harga akan otomatis terisi. Toko akan tercatat otomatis dari link referral.</p>
+  </div>
+
+  <!-- Referrals Table -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <h2 style="margin:0;">📊 Riwayat Referral per Toko</h2>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-sm btn-outline" onclick="loadData()">🔄 Refresh</button>
+        <button class="btn btn-sm btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+      </div>
+    </div>
+    <div id="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Kode</th><th>Nama</th><th>Toko</th><th>Klik</th><th>Jual</th><th>Pendapatan</th><th>Produk Terjual</th><th>Status</th><th>Aksi</th></tr>
+        </thead>
+        <tbody id="ref-tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty-state" style="display:none;">
+      <div class="empty-icon">📭</div>
+      <p>Belum ada data referral.</p>
+      <p style="font-size:12px;">Buat link pertama Anda di atas.</p>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="card">
+    <h2>❓ Panduan Penggunaan</h2>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:12px;">
+      <div style="padding:16px; background:#f8f9fa; border-radius:8px;">
+        <strong style="font-size:14px;color:var(--primary);">1. Buat Link + Pilih Toko</strong>
+        <p style="font-size:12px;color:var(--text-secondary);margin-top:6px;">Masukkan nama sales & pilih toko → Generate → salin link unik. Status default: <strong>Active</strong>.</p>
+      </div>
+      <div style="padding:16px; background:#f8f9fa; border-radius:8px;">
+        <strong style="font-size:14px;color:var(--primary);">2. Bagikan ke Customer</strong>
+        <p style="font-size:12px;color:var(--text-secondary);margin-top:6px;">Kirim link ke customer via WA/Telegram. Customer akan lihat badge toko di website.</p>
+      </div>
+      <div style="padding:16px; background:#f8f9fa; border-radius:8px;">
+        <strong style="font-size:14px;color:var(--primary);">3. Status Aktif/Nonaktif</strong>
+        <p style="font-size:12px;color:var(--text-secondary);margin-top:6px;">Klik <strong>"⏸ Nonaktifkan"</strong> untuk memblokir link. Customer tidak bisa membuka website sama sekali.</p>
+      </div>
+      <div style="padding:16px; background:#f8f9fa; border-radius:8px;">
+        <strong style="font-size:14px;color:var(--primary);">4. Catat Jual per Toko</strong>
+        <p style="font-size:12px;color:var(--text-secondary);margin-top:6px;">Jika customer beli, catat via "Cepat: Catat Penjualan". Omzet masuk ke sales & toko terkait.</p>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:16px;">
+      💡 <strong>Tips:</strong> Gunakan filter "Semua Toko" untuk melihat performa keseluruhan, atau pilih toko spesifik untuk melihat omzet per cabang.
+    </p>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>© 2026 Pelangi Furniture Solo — Dashboard Referral Internal</p>
+  <p style="font-size:11px;margin-top:4px;">Data tersimpan di Google Sheets Anda. Jangan bagikan URL ini ke publik.</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== DATA =====
+  const stores = ['Radjiman 1', 'Radjiman 2', 'Gentan', 'Klodran', 'Mojosongo', 'Online'];
+  const productList = [
+    { name: "Meja Kompor ROJO", price: 850000 },
+    { name: "Lemari SCOC Kids", price: 1250000 },
+    { name: "Meja Setrika Activ Cozy", price: 320000 },
+    { name: "Busa Royal Medicare + Divan", price: 1713000 },
+    { name: "Kitchen Set Minimalis 3 Pintu", price: 1450000 },
+    { name: "Rak Piring Aluminium 2 Susun", price: 275000 },
+    { name: "Sofa Minimalis 2 Seater", price: 2100000 },
+    { name: "Meja Belajar Anak + Kursi", price: 650000 }
+  ];
+
+  const GAS_URL_KEY = 'mebeldisolo_gas_url';
+  let GAS_URL = localStorage.getItem(GAS_URL_KEY) || '';
+  let currentRef = null;
+  let allReferrals = [];
+  let filteredReferrals = [];
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    // Populate store filter
+    const filterSelect = document.getElementById('filter-store');
+    stores.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      filterSelect.appendChild(opt);
+    });
+
+    if (GAS_URL) {
+      document.getElementById('setup-box').style.display = 'none';
+      document.getElementById('btn-setup-toggle').textContent = '⚙️ Ubah URL';
+      document.getElementById('store-filter-bar').style.display = 'flex';
+    }
+
+    // Populate product dropdown
+    const prodSelect = document.getElementById('quick-product');
+    productList.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.name;
+      opt.textContent = p.name + ' — Rp ' + p.price.toLocaleString('id-ID');
+      prodSelect.appendChild(opt);
+    });
+    prodSelect.addEventListener('change', function() {
+      const p = productList.find(x => x.name === this.value);
+      document.getElementById('quick-amount').value = p ? p.price : '';
+    });
+
+    if (GAS_URL) {
+      document.getElementById('gas-url').value = GAS_URL;
+      loadData();
+    }
+  });
+
+  function saveGasUrl() {
+    const url = document.getElementById('gas-url').value.trim();
+    if (!url || !url.includes('script.google.com')) {
+      showToast('URL tidak valid. Pastikan dari Google Apps Script.', 'error');
+      return;
+    }
+    GAS_URL = url;
+    localStorage.setItem(GAS_URL_KEY, url);
+    document.getElementById('saved-url-info').style.display = 'block';
+    document.getElementById('saved-url-display').textContent = url;
+    document.getElementById('setup-box').style.display = 'none';
+    document.getElementById('btn-setup-toggle').textContent = '⚙️ Ubah URL';
+    document.getElementById('store-filter-bar').style.display = 'flex';
+    showToast('Berhasil terhubung ke Google Sheets!', 'success');
+    loadData();
+  }
+
+  function toggleSetupBox() {
+    const box = document.getElementById('setup-box');
+    const isHidden = box.style.display === 'none';
+    box.style.display = isHidden ? 'block' : 'none';
+    if (isHidden && GAS_URL) {
+      document.getElementById('gas-url').value = GAS_URL;
+    }
+  }
+
+  function generateCode(name) {
+    const base = name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+    const rand = Math.random().toString(36).substring(2, 6);
+    return (base || 'ref') + '-' + rand;
+  }
+
+  async function createReferral() {
+    const name = document.getElementById('ref-name').value.trim();
+    const store = document.getElementById('ref-store').value;
+    if (!name) { showToast('Masukkan nama terlebih dahulu', 'error'); return; }
+    if (!store) { showToast('Pilih toko terlebih dahulu', 'error'); return; }
+    if (!GAS_URL) { showToast('Setup URL Apps Script dulu!', 'error'); return; }
+
+    const btn = document.getElementById('btn-create');
+    btn.innerHTML = '<span class="loading"></span>';
+    btn.disabled = true;
+
+    const code = generateCode(name);
+    const baseUrl = window.location.origin.replace('/admin.html', '/index.html');
+    const link = baseUrl + '?ref=' + code;
+    currentRef = { code, name, link, store };
+
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'createReferral', name, code, link, store })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('ref-result').style.display = 'block';
+        document.getElementById('ref-link').textContent = link;
+        document.getElementById('ref-store-badge').textContent = '🏪 ' + store;
+        document.getElementById('ref-name').value = '';
+        document.getElementById('ref-store').value = '';
+        showToast('Link referral untuk ' + store + ' berhasil dibuat!', 'success');
+        loadData();
+      } else {
+        showToast('Error: ' + (data.error || 'Unknown'), 'error');
+      }
+    } catch (err) {
+      showToast('Gagal terhubung. Cek URL & deployment.', 'error');
+    }
+
+    btn.innerHTML = 'Generate Link';
+    btn.disabled = false;
+  }
+
+  async function loadData() {
+    if (!GAS_URL) return;
+    try {
+      const [refRes, statRes] = await Promise.all([
+        fetch(GAS_URL + '?action=getReferrals'),
+        fetch(GAS_URL + '?action=getStats')
+      ]);
+      const refData = await refRes.json();
+      const statData = await statRes.json();
+
+      if (refData.success) {
+        allReferrals = refData.referrals || [];
+        applyStoreFilter(false);
+      }
+      if (statData.success && statData.stats) {
+        const s = statData.stats;
+        document.getElementById('stat-links').textContent = s.activeLinks + '/' + s.totalLinks;
+        document.getElementById('stat-clicks').textContent = s.totalClicks;
+        document.getElementById('stat-sales').textContent = s.totalSales;
+        document.getElementById('stat-revenue').textContent = 'Rp ' + (s.totalRevenue || 0).toLocaleString('id-ID');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal memuat data. Cek koneksi & URL.', 'error');
+    }
+  }
+
+  function applyStoreFilter(updateStats = true) {
+    const store = document.getElementById('filter-store').value;
+    if (store === 'all') {
+      filteredReferrals = [...allReferrals];
+    } else {
+      filteredReferrals = allReferrals.filter(r => r.store === store);
+    }
+    renderTable(filteredReferrals);
+    updateQuickSelect(filteredReferrals);
+
+    if (updateStats) {
+      // Recalc stats for filtered view
+      let activeLinks = 0, totalClicks = 0, totalSales = 0, totalRevenue = 0;
+      filteredReferrals.forEach(r => {
+        if (r.status !== 'Inactive') activeLinks++;
+        totalClicks += r.clicks || 0;
+        totalSales += r.sales || 0;
+        totalRevenue += r.revenue || 0;
+      });
+      document.getElementById('stat-links').textContent = activeLinks + '/' + filteredReferrals.length;
+      document.getElementById('stat-clicks').textContent = totalClicks;
+      document.getElementById('stat-sales').textContent = totalSales;
+      document.getElementById('stat-revenue').textContent = 'Rp ' + totalRevenue.toLocaleString('id-ID');
+    }
+  }
+
+  function renderTable(referrals) {
+    const tbody = document.getElementById('ref-tbody');
+    const empty = document.getElementById('empty-state');
+    const wrap = document.getElementById('table-wrap');
+
+    if (referrals.length === 0) {
+      wrap.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    wrap.style.display = 'block';
+    empty.style.display = 'none';
+
+    tbody.innerHTML = referrals.map(r => {
+      const isActive = (r.status || 'Active') === 'Active';
+      const statusBadge = isActive
+        ? '<span class="badge badge-success">Active</span>'
+        : '<span class="badge badge-neutral" style="background:#fee2e2;color:#991b1b;">Inactive</span>';
+      const convBadge = r.sales > 0
+        ? '<span class="badge badge-success" style="margin-left:4px;">Konversi</span>'
+        : (r.clicks > 0 ? '<span class="badge badge-warning" style="margin-left:4px;">Diklik</span>' : '');
+      const rowOpacity = isActive ? '1' : '0.55';
+      const storeLabel = r.store || '-';
+      return `<tr style="opacity:${rowOpacity}">
+        <td><code>${escapeHtml(r.code)}</code></td>
+        <td>${escapeHtml(r.name)}</td>
+        <td><span class="badge badge-store">🏪 ${escapeHtml(storeLabel)}</span></td>
+        <td>${r.clicks}</td>
+        <td>${r.sales}</td>
+        <td>Rp ${(r.revenue || 0).toLocaleString('id-ID')}</td>
+        <td style="font-size:11px;color:var(--text-secondary);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(r.products || '-')}</td>
+        <td>${statusBadge}${convBadge}</td>
+        <td>
+          <button class="btn btn-sm ${isActive ? 'btn-warning' : 'btn-success'}" onclick="toggleStatus('${r.code}')" title="Toggle status">${isActive ? '⏸ Nonaktifkan' : '▶ Aktifkan'}</button>
+          <button class="btn btn-sm btn-outline" onclick="copyLink('${r.link}')">Copy</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateQuickSelect(referrals) {
+    const select = document.getElementById('quick-ref');
+    select.innerHTML = '<option value="">Pilih Kode Referral...</option>' +
+      referrals.map(r => `<option value="${r.code}">${r.code} — ${escapeHtml(r.name)} (${r.store || '-'})</option>`).join('');
+  }
+
+  async function quickSale() {
+    const code = document.getElementById('quick-ref').value;
+    const product = document.getElementById('quick-product').value;
+    const amount = parseFloat(document.getElementById('quick-amount').value) || 0;
+    if (!code) { showToast('Pilih kode referral dulu!', 'error'); return; }
+    if (!product) { showToast('Pilih produk!', 'error'); return; }
+    await recordSale(code, product, amount);
+  }
+
+  async function recordSale(code, product, amount) {
+    if (!GAS_URL) return;
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'trackSale', refCode: code, product, amount })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Penjualan tercatat! Total jual: ${data.totalSales}`, 'success');
+        loadData();
+      }
+    } catch(e) { showToast('Gagal mencatat penjualan', 'error'); }
+  }
+
+  function copyRef() {
+    if (!currentRef) return;
+    navigator.clipboard.writeText(currentRef.link).then(() => showToast('Link disalin!', 'success'));
+  }
+
+  function copyLink(link) {
+    navigator.clipboard.writeText(link).then(() => showToast('Link disalin!', 'success'));
+  }
+
+  function shareWhatsApp() {
+    if (!currentRef) return;
+    const text = `Halo! Lihat katalog furniture dari Pelangi Solo (${currentRef.store}): ${currentRef.link}`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  }
+
+  function shareTelegram() {
+    if (!currentRef) return;
+    const text = `Katalog furniture Pelangi Solo — ${currentRef.store}: ${currentRef.link}`;
+    window.open('https://t.me/share/url?url=' + encodeURIComponent(currentRef.link) + '&text=' + encodeURIComponent(text), '_blank');
+  }
+
+  function shareEmail() {
+    if (!currentRef) return;
+    const subject = 'Katalog Furniture Pelangi Solo — ' + currentRef.store;
+    const body = `Halo,\n\nSilakan lihat katalog furniture kami di Pelangi Solo (${currentRef.store}):\n${currentRef.link}\n\nTerima kasih!`;
+    window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+  }
+
+  async function toggleStatus(code) {
+    if (!GAS_URL) { showToast('Setup URL Apps Script dulu!', 'error'); return; }
+    try {
+      const res = await fetch(GAS_URL + '?action=toggleStatus&ref=' + encodeURIComponent(code));
+      const data = await res.json();
+      if (data.success) {
+        showToast('Status diubah menjadi: ' + data.status, 'success');
+        loadData();
+      } else {
+        showToast('Gagal: ' + (data.error || 'Unknown'), 'error');
+      }
+    } catch(e) { showToast('Gagal mengubah status', 'error'); }
+  }
+
+  function exportCSV() {
+    if (allReferrals.length === 0) { showToast('Tidak ada data untuk di-export', 'error'); return; }
+    let csv = 'Kode,Nama,Toko,Link,Total Klik,Total Jual,Produk Terjual,Pendapatan,Tanggal,Status\n';
+    allReferrals.forEach(r => {
+      csv += `${r.code},"${r.name}","${r.store || ''}","${r.link}",${r.clicks},${r.sales},"${r.products || ''}",${r.revenue || 0},${r.timestamp},${r.status}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pelangi-referral-per-toko.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV berhasil di-download!', 'success');
+  }
+
+  function escapeHtml(t) {
+    const d = document.createElement('div');
+    d.textContent = t;
+    return d.innerHTML;
+  }
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + (type || '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+
+</body>
+</html>
