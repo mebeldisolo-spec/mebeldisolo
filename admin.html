@@ -171,7 +171,7 @@
   <div class="card">
     <h2>➕ Buat Link Referral Baru</h2>
     <div class="form-row">
-      <input type="text" id="ref-name" placeholder="Nama Sales / Referrer (contoh: Budi)" maxlength="25">
+      <input type="text" id="ref-name" placeholder="Nama Sales (contoh: Budi)" maxlength="25">
       <select id="ref-store">
         <option value="">Pilih Toko...</option>
         <option value="Radjiman 1">🏪 Radjiman 1</option>
@@ -181,6 +181,7 @@
         <option value="Mojosongo">🏪 Mojosongo</option>
         <option value="Online">🌐 Online</option>
       </select>
+      <input type="tel" id="ref-phone" placeholder="Nomor WA Sales (62895...)" maxlength="15">
       <button class="btn" id="btn-create" onclick="createReferral()">Generate Link</button>
     </div>
     <p style="font-size:12px;color:var(--text-secondary);">Link akan otomatis masuk ke Google Sheets dengan informasi Toko. Customer akan melihat toko yang melayani mereka.</p>
@@ -225,7 +226,7 @@
     <div id="table-wrap">
       <table>
         <thead>
-          <tr><th>Kode</th><th>Nama</th><th>Toko</th><th>Klik</th><th>Jual</th><th>Pendapatan</th><th>Produk Terjual</th><th>Status</th><th>Aksi</th></tr>
+          <tr><th>Kode</th><th>Nama</th><th>Toko</th><th>WA</th><th>Klik</th><th>Jual</th><th>Pendapatan</th><th>Produk Terjual</th><th>Status</th><th>Aksi</th></tr>
         </thead>
         <tbody id="ref-tbody"></tbody>
       </table>
@@ -379,8 +380,11 @@
   async function createReferral() {
     const name = document.getElementById('ref-name').value.trim();
     const store = document.getElementById('ref-store').value;
+    const phone = document.getElementById('ref-phone').value.trim().replace(/[^0-9]/g, '');
     if (!name) { showToast('Masukkan nama terlebih dahulu', 'error'); return; }
     if (!store) { showToast('Pilih toko terlebih dahulu', 'error'); return; }
+    if (!phone) { showToast('Masukkan nomor WA sales', 'error'); return; }
+    if (!phone.startsWith('62') && !phone.startsWith('0')) { showToast('Nomor WA harus diawali 62 atau 0', 'error'); return; }
     if (!GAS_URL) { showToast('Setup URL Apps Script dulu!', 'error'); toggleSetupBox(); return; }
 
     const btn = document.getElementById('btn-create');
@@ -390,7 +394,7 @@
     const code = generateCode(name);
     const baseUrl = getBaseUrl();
     const link = baseUrl + '?ref=' + code;
-    currentRef = { code, name, link, store };
+    currentRef = { code, name, link, store, phone };
 
     console.log('Creating referral:', { name, code, link, store });
     console.log('POST to:', GAS_URL);
@@ -400,7 +404,7 @@
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'createReferral', name, code, link, store })
+        body: JSON.stringify({ action: 'createReferral', name, code, link, store, phone })
       });
 
       // With no-cors, we can't read response. Assume success if no error thrown.
@@ -411,6 +415,7 @@
       document.getElementById('ref-store-badge').textContent = '🏪 ' + store;
       document.getElementById('ref-name').value = '';
       document.getElementById('ref-store').value = '';
+      document.getElementById('ref-phone').value = '';
       showToast('Link referral untuk ' + store + ' berhasil dibuat!', 'success');
 
       // Refresh data after a short delay
@@ -502,10 +507,12 @@
         : (r.clicks > 0 ? '<span class="badge badge-warning" style="margin-left:4px;">Diklik</span>' : '');
       const rowOpacity = isActive ? '1' : '0.55';
       const storeLabel = r.store || '-';
+      const phoneDisplay = r.phone ? '<a href="https://wa.me/' + r.phone + '" target="_blank" style="color:var(--success);text-decoration:none;font-weight:600;">📱 ' + r.phone + '</a>' : '-';
       return `<tr style="opacity:${rowOpacity}">
         <td><code>${escapeHtml(r.code)}</code></td>
         <td>${escapeHtml(r.name)}</td>
         <td><span class="badge badge-store">🏪 ${escapeHtml(storeLabel)}</span></td>
+        <td>${phoneDisplay}</td>
         <td>${r.clicks}</td>
         <td>${r.sales}</td>
         <td>Rp ${(r.revenue || 0).toLocaleString('id-ID')}</td>
@@ -561,7 +568,7 @@
 
   function shareWhatsApp() {
     if (!currentRef) return;
-    const text = 'Halo! Lihat katalog furniture dari Pelangi Solo (' + currentRef.store + '): ' + currentRef.link;
+    const text = 'Halo! Lihat katalog furniture dari Pelangi Solo (' + currentRef.store + '). Chat sales kami di WA: https://wa.me/' + currentRef.phone + ' atau klik link: ' + currentRef.link;
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   }
 
@@ -594,9 +601,9 @@
 
   function exportCSV() {
     if (allReferrals.length === 0) { showToast('Tidak ada data untuk di-export', 'error'); return; }
-    let csv = 'Kode,Nama,Toko,Link,Total Klik,Total Jual,Produk Terjual,Pendapatan,Tanggal,Status\n';
+    let csv = 'Kode,Nama,Toko,Phone,Link,Total Klik,Total Jual,Produk Terjual,Pendapatan,Tanggal,Status\n';
     allReferrals.forEach(r => {
-      csv += r.code + ',"' + r.name + '","' + (r.store || '') + '","' + r.link + '",' + r.clicks + ',' + r.sales + ',"' + (r.products || '') + '",' + (r.revenue || 0) + ',' + r.timestamp + ',' + r.status + '\n';
+      csv += r.code + ',"' + r.name + '","' + (r.store || '') + '","' + (r.phone || '') + '","' + r.link + '",' + r.clicks + ',' + r.sales + ',"' + (r.products || '') + '",' + (r.revenue || 0) + ',' + r.timestamp + ',' + r.status + '\n';
     });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
