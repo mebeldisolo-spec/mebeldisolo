@@ -287,6 +287,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -988,7 +989,7 @@
     const ref = sessionStorage.getItem('pelangi_ref') || '';
     const sales = sessionStorage.getItem('pelangi_sales') || '';
     // Gunakan nomor sales kalau ada, kalau tidak fallback ke nomor pusat
-    const phone = window.__salesPhone || sessionStorage.getItem('pelangi_phone') || '6289523047318';
+    const phone = window.__salesPhone || sessionStorage.getItem('pelangi_phone') || OFFICE_PHONE;
 
     let msg = 'Halo *' + (sales || 'Pelangi Furniture') + '*, saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + ').';
     if (store) {
@@ -1468,26 +1469,53 @@
   // ============================================================
   // REFERRAL TRACKING (dengan Toko)
   // ============================================================
-  const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbyNr1LYLQbyk0s0YS-th8U5Si1MF6X02dh80MQCZMxGcBWEHYPNKsnnbGMj0n73xHa8/exec';
+  const GAS_URL_CUSTOMER='https://script.google.com/macros/s/AKfycbyNr1LYLQbyk0s0YS-th8U5Si1MF6X02dh80MQCZMxGcBWEHYPNKsnnbGMj0n73xHa8/exec';
   const urlParams = new URLSearchParams(window.location.search);
   const refCode = urlParams.get('ref');
+  const OFFICE_PHONE = '6289523047318';
   let currentRefCode = sessionStorage.getItem('pelangi_ref') || '';
   let currentStore = sessionStorage.getItem('pelangi_store') || '';
 
+  // Reset semua UI & data referral ke default kantor
+  function clearReferralData() {
+    sessionStorage.removeItem('pelangi_store');
+    sessionStorage.removeItem('pelangi_ref');
+    sessionStorage.removeItem('pelangi_sales');
+    sessionStorage.removeItem('pelangi_phone');
+    window.__salesPhone = null;
+    window.__salesName = null;
+    currentStore = '';
+    currentRefCode = '';
+
+    const bar = document.getElementById('store-badge-bar');
+    const nameEl = document.getElementById('store-name');
+    const salesEl = document.getElementById('store-sales-name');
+    const waBtn = document.getElementById('store-wa-btn');
+    const stickyWa = document.getElementById('sticky-wa');
+
+    if (bar) bar.classList.remove('active');
+    if (nameEl) nameEl.textContent = '-';
+    if (salesEl) salesEl.textContent = '';
+    if (waBtn) { waBtn.style.display = 'none'; waBtn.href = '#'; }
+    if (stickyWa) {
+      stickyWa.href = 'https://wa.me/' + OFFICE_PHONE;
+      stickyWa.textContent = '💬 Chat WhatsApp';
+    }
+  }
+
   async function checkReferralStatus() {
-    // Kalau tidak ada ref di URL, cek sessionStorage (dari kunjungan sebelumnya)
+    // Jika tidak ada ref di URL → pakai default kantor, hapus data lama
     if (!refCode) {
-      const savedStore = sessionStorage.getItem('pelangi_store');
-      const savedSales = sessionStorage.getItem('pelangi_sales');
-      const savedPhone = sessionStorage.getItem('pelangi_phone');
-      if (savedStore) showStoreBadge(savedStore, savedSales, savedPhone);
+      clearReferralData();
       return true;
     }
 
-    // Kalau URL Apps Script belum diganti (masih placeholder), allow access
+    // Kalau URL Apps Script masih placeholder, allow access tapi tetap pakai data referral dari sessionStorage kalau cocok
     if (!GAS_URL_CUSTOMER || !GAS_URL_CUSTOMER.includes('script.google.com') || GAS_URL_CUSTOMER.includes('XXXXXXXX')) {
       console.warn('GAS_URL_CUSTOMER belum diatur. Allowing access.');
-      if (currentStore) showStoreBadge(currentStore);
+      if (currentStore && currentRefCode === refCode) {
+        showStoreBadge(currentStore, sessionStorage.getItem('pelangi_sales'), sessionStorage.getItem('pelangi_phone'));
+      }
       return true;
     }
 
@@ -1512,7 +1540,7 @@
           .catch(() => console.log('Tracking failed'));
         return true;
       } else {
-        // Link inactive
+        // Link inactive → blokir akses
         document.getElementById('blocked-ref-code').textContent = refCode;
         document.getElementById('blocked-overlay').classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -1520,7 +1548,10 @@
       }
     } catch (err) {
       console.log('Status check failed, allowing access:', err);
-      if (currentStore) showStoreBadge(currentStore);
+      // Fallback: jika ref cocok dengan sessionStorage, tetap tampilkan badge sales
+      if (currentStore && currentRefCode === refCode) {
+        showStoreBadge(currentStore, sessionStorage.getItem('pelangi_sales'), sessionStorage.getItem('pelangi_phone'));
+      }
       return true;
     }
   }
@@ -1541,21 +1572,20 @@
       salesEl.textContent = 'Sales: ' + salesName;
     }
 
-    // Update semua tombol WA ke nomor sales
-    if (salesPhone) {
-      const waUrl = 'https://wa.me/' + salesPhone;
-      if (waBtn) {
-        waBtn.href = waUrl;
-        waBtn.style.display = 'inline-block';
-      }
-      if (stickyWa) {
-        stickyWa.href = waUrl;
-        stickyWa.textContent = '💬 Chat ' + salesName;
-      }
-      // Simpan nomor default untuk buyNow
-      window.__salesPhone = salesPhone;
-      window.__salesName = salesName;
+    // Update semua tombol WA ke nomor sales (jika ada), kalau tidak fallback ke kantor
+    const targetPhone = salesPhone || OFFICE_PHONE;
+    const waUrl = 'https://wa.me/' + targetPhone;
+    if (waBtn) {
+      waBtn.href = waUrl;
+      waBtn.style.display = 'inline-block';
     }
+    if (stickyWa) {
+      stickyWa.href = waUrl;
+      stickyWa.textContent = salesName ? '💬 Chat ' + salesName : '💬 Chat WhatsApp';
+    }
+    // Simpan nomor untuk buyNow
+    window.__salesPhone = targetPhone;
+    window.__salesName = salesName || '';
   }
 
   checkReferralStatus();
