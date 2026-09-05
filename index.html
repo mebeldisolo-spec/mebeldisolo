@@ -203,10 +203,8 @@
     .reveal { opacity: 0; transform: translateY(24px); transition: all 0.6s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    .store-badge { position: fixed; top: 70px; right: 16px; background: var(--primary); color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; z-index: 80; box-shadow: var(--shadow); display: none; animation: slideInBadge 0.3s ease; }
-    .store-badge.show { display: block; }
-    @keyframes slideInBadge { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-
+    
+    /* ===== BLOG ===== */
     .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
     .blog-card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.2s; cursor: pointer; }
     .blog-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
@@ -234,6 +232,8 @@
     .btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--bg-light); color: var(--text-secondary); border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); margin-bottom: 20px; }
     .btn-back:hover { background: var(--border); }
 
+    
+    /* ===== REFERRAL BLOCKED ===== */
     .blocked-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 24px; }
     .blocked-overlay.active { display: flex; }
     .blocked-card { text-align: center; max-width: 420px; padding: 40px; }
@@ -242,20 +242,6 @@
     .blocked-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 8px; }
     .blocked-card .ref-code { display: inline-block; background: var(--bg-light); padding: 6px 14px; border-radius: 8px; font-family: monospace; font-size: 13px; color: var(--text-muted); margin: 12px 0; border: 1px solid var(--border); }
     .blocked-card .btn { margin-top: 16px; }
-
-    .hero-carousel { position: relative; height: 420px; overflow: hidden; border-radius: 0; }
-    .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease-in-out; }
-    .hero-slide.active { opacity: 1; }
-    .hero-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.5) 100%); }
-    .hero-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 5; }
-    .hero-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: all 0.3s; border: none; }
-    .hero-dot.active { background: white; width: 28px; border-radius: 5px; }
-    .hero-dot:hover { background: rgba(255,255,255,0.7); }
-    .hero-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.2); color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.2s; backdrop-filter: blur(4px); }
-    .hero-nav:hover { background: rgba(255,255,255,0.35); }
-    .hero-nav.prev { left: 16px; }
-    .hero-nav.next { right: 16px; }
 
     @media (max-width: 768px) {
       .hero h2 { font-size: 26px; }
@@ -271,17 +257,16 @@
       .search-box { min-width: 100%; }
       .sticky-wa { bottom: 16px; left: 16px; padding: 10px 16px; font-size: 12px; }
       .back-to-top { bottom: 16px; right: 16px; width: 40px; height: 40px; }
-      .store-badge { top: 60px; right: 8px; font-size: 11px; padding: 4px 10px; }
     }
     @media (min-width: 769px) {
       .mobile-menu { display: none !important; }
     }
   </style>
-  <base target="_blank">
-<base target="_blank">
 </head>
 <body>
 
+
+<!-- REFERRAL BLOCKED OVERLAY -->
 <div class="blocked-overlay" id="blocked-overlay">
   <div class="blocked-card">
     <div class="blocked-icon">🚫</div>
@@ -293,8 +278,6 @@
     <button class="btn btn-primary" onclick="window.location.href=window.location.origin + window.location.pathname">🏠 Kunjungi Website Utama</button>
   </div>
 </div>
-
-<div class="store-badge" id="store-badge"></div>
 
 <div class="promo-bar" id="promo-bar">
   <span>🔥 Promo Spesial: Diskon 15% untuk pembelian via WhatsApp!</span>
@@ -333,26 +316,14 @@
   <button class="nav-link" onclick="showPage('contact'); toggleMobileMenu()">Kontak</button>
 </div>
 
+<!-- HOME -->
 <div class="page active" id="page-home">
-  <section class="hero-carousel" id="hero-carousel">
-    <div class="hero-slide active">
-      <img src="toko-pelangi.png" alt="Toko Pelangi Furniture Solo">
-      <div class="hero-overlay"></div>
-    </div>
-    <div class="hero-slide">
-      <img src="springbed-pelangi.png" alt="Springbed Pelangi">
-      <div class="hero-overlay"></div>
-    </div>
-    <div class="hero-slide">
-      <img src="sofa-pelangi.png" alt="Sofa Pelangi">
-      <div class="hero-overlay"></div>
-    </div>
-    <button class="hero-nav prev" onclick="moveHero(-1)">‹</button>
-    <button class="hero-nav next" onclick="moveHero(1)">›</button>
-    <div class="hero-dots">
-      <button class="hero-dot active" onclick="setHeroSlide(0)"></button>
-      <button class="hero-dot" onclick="setHeroSlide(1)"></button>
-      <button class="hero-dot" onclick="setHeroSlide(2)"></button>
+  <section class="hero">
+    <h2>Solusi Kebutuhan Rumah Tangga Anda</h2>
+    <p>Toko Mebel Pelangi Solo — furniture berkualitas dengan harga terjangkau. Ramah. Pepak. Murah.</p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn" onclick="showPage('products')" style="cursor:pointer;">Lihat Katalog</button>
+      <button class="btn btn-outline" onclick="showPage('about')" style="cursor:pointer;">Tentang Kami</button>
     </div>
   </section>
 
@@ -494,6 +465,7 @@
   </section>
 </div>
 
+<!-- PRODUCTS -->
 <div class="page" id="page-products">
   <section class="hero" style="padding: 50px 24px;">
     <h2>Katalog Produk</h2>
@@ -522,6 +494,7 @@
   </section>
 </div>
 
+<!-- ABOUT -->
 <div class="page" id="page-about">
   <section class="hero" style="padding: 60px 24px;">
     <h2>Tentang Kami</h2>
@@ -532,12 +505,14 @@
       <h3>Membuat Rumah Impian Menjadi Nyata</h3>
       <p>Pelangi Furniture &amp; Homeware hadir sejak 2010 untuk memberikan solusi furniture berkualitas dengan harga terjangkau bagi masyarakat Solo dan sekitarnya.</p>
     </div>
+
     <div class="stats-grid reveal">
       <div class="stat-card"><div class="stat-number" data-target="14">0</div><div class="stat-label">Tahun Berdiri</div></div>
       <div class="stat-card"><div class="stat-number" data-target="5000">0</div><div class="stat-label">Pelanggan Puas</div></div>
       <div class="stat-card"><div class="stat-number" data-target="200">0</div><div class="stat-label">Produk Tersedia</div></div>
       <div class="stat-card"><div class="stat-number" data-target="15">0</div><div class="stat-label">Tim Karyawan</div></div>
     </div>
+
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
       <div class="reveal">
         <h3 style="font-size: 22px; font-weight: 600; margin-bottom: 20px;">Perjalanan Kami</h3>
@@ -569,6 +544,7 @@
   </section>
 </div>
 
+<!-- CONTACT -->
 <div class="page" id="page-contact">
   <section class="hero" style="padding: 50px 24px;">
     <h2>Hubungi Kami</h2>
@@ -583,7 +559,7 @@
         </div>
         <div class="contact-item">
           <strong>📞 WhatsApp / Telepon</strong>
-          <span><a href="https://wa.me/6289523047318" class="wa-link" target="_blank">0895-2304-7318</a></span>
+          <span><a href="https://wa.me/6289523047318" target="_blank">0895-2304-7318</a></span>
         </div>
         <div class="contact-item">
           <strong>🛒 Tokopedia</strong>
@@ -595,7 +571,7 @@
         </div>
         <div class="contact-item">
           <strong>🕐 Jam Operasional</strong>
-          <span>Senin - Sabtu: 08.00 - 17.00<br>Minggu: 09.00 - 15.00</span>
+          <span>Senin - Sabtu: 08.00 - 18.00<br>Minggu: 09.00 - 18.00</span>
         </div>
         <div class="contact-item">
           <strong>📧 Email</strong>
@@ -614,6 +590,7 @@
   </section>
 </div>
 
+<!-- BLOG -->
 <div class="page" id="page-blog">
   <section class="hero" style="padding: 50px 24px;">
     <h2>Blog & Tips</h2>
@@ -630,12 +607,14 @@
   </section>
 </div>
 
+<!-- BLOG DETAIL -->
 <div class="page" id="page-blog-detail">
   <section class="section" style="padding-top: 40px;">
     <div class="blog-detail reveal" id="blog-detail-content"></div>
   </section>
 </div>
 
+<!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal" id="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
@@ -646,6 +625,7 @@
   </div>
 </div>
 
+<!-- FOOTER -->
 <footer>
   <div class="footer-links">
     <a href="#" onclick="showPage('home'); return false;">Beranda</a>
@@ -662,32 +642,15 @@
   <div class="socials">
     <a href="https://www.tokopedia.com/pelangifurnihome" target="_blank">Tokopedia</a>
     <a href="https://instagram.com/pelangifurnihome" target="_blank">Instagram</a>
-    <a href="https://wa.me/6289523047318" class="wa-link" target="_blank">WhatsApp</a>
+    <a href="https://wa.me/6289523047318" target="_blank">WhatsApp</a>
   </div>
 </footer>
 
 <div class="toast" id="toast">Tersalin!</div>
 <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-<a class="sticky-wa" href="https://wa.me/6289523047318" id="sticky-wa" target="_blank">💬 Chat WhatsApp</a>
+<a class="sticky-wa" href="https://wa.me/6289523047318" target="_blank">💬 Chat WhatsApp</a>
 
 <script>
-
-  // ============================================================
-  // KONFIGURASI MULTI-STORE
-  // ============================================================
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzaRD_LhvX23A9GB1-eOaYb9HnzvmYU-9mvJsbZjwDk9aSvgAE3tvvOpMvV0vn9FSJI/exec';
-
-  // Fallback jika tidak ada referral atau GAS error
-  const DEFAULT_STORE = {
-    wa: '6289523047318',
-    name: 'Pelangi Pusat',
-    ref: null
-  };
-
-  // State toko aktif berdasarkan referral
-  let activeStore = { ...DEFAULT_STORE };
-  const urlParams = new URLSearchParams(window.location.search);
-  const refCode = urlParams.get('ref');
 
   // ============================================================
   // DATA PRODUK
@@ -824,83 +787,6 @@
   let searchQuery = '';
 
   // ============================================================
-  // MULTI-STORE REFERRAL SYSTEM
-  // ============================================================
-  async function checkReferralStatus() {
-    if (!refCode) {
-      console.log('No referral code, using default store');
-      return true;
-    }
-    if (!GAS_URL || !GAS_URL.includes('script.google.com')) {
-      console.log('GAS URL invalid, using default store');
-      return true;
-    }
-
-    try {
-      const res = await fetch(GAS_URL + '?action=checkStatus&ref=' + encodeURIComponent(refCode));
-      const data = await res.json();
-
-      if (data.success && data.active === true) {
-        // Simpan data toko dari referral
-        activeStore = {
-          wa: cleanWaNumber(data.whatsapp) || DEFAULT_STORE.wa,
-          name: data.store || DEFAULT_STORE.name,
-          ref: refCode,
-          sales: data.sales || 'Sales'
-        };
-
-        // Update semua link WA di halaman
-        updateWaLinks(activeStore.wa);
-
-        // Tampilkan badge nama toko
-        showStoreBadge(activeStore.name);
-
-        // Tracking click
-        fetch(GAS_URL + '?action=trackClick&ref=' + encodeURIComponent(refCode))
-          .then(() => console.log('Referral click tracked:', refCode))
-          .catch(() => console.log('Tracking failed'));
-
-        return true;
-      } else {
-        // Referral tidak aktif
-        document.getElementById('blocked-ref-code').textContent = refCode;
-        document.getElementById('blocked-overlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
-        return false;
-      }
-    } catch (err) {
-      console.log('Status check failed, using default store:', err);
-      return true;
-    }
-  }
-
-  function cleanWaNumber(num) {
-    if (!num) return DEFAULT_STORE.wa;
-    return num.toString().replace(/\D/g, '').replace(/^0/, '62').replace(/^\+/, '');
-  }
-
-  function updateWaLinks(waNumber) {
-    const cleanWa = cleanWaNumber(waNumber);
-
-    // Update sticky WA
-    const stickyWa = document.getElementById('sticky-wa');
-    if (stickyWa) stickyWa.href = 'https://wa.me/' + cleanWa;
-
-    // Update semua link wa.me
-    document.querySelectorAll('a[href*="wa.me"]').forEach(link => {
-      link.href = 'https://wa.me/' + cleanWa;
-    });
-  }
-
-  function showStoreBadge(storeName) {
-    const badge = document.getElementById('store-badge');
-    if (badge) {
-      badge.textContent = '🏪 ' + storeName;
-      badge.classList.add('show');
-    }
-  }
-
-  // ============================================================
   // RENDER PRODUK
   // ============================================================
   function renderProducts() {
@@ -976,9 +862,9 @@
           </div>
           <p class="modal-desc">${p.fullDesc}</p>
           <div class="modal-actions">
-            <button class="btn btn-primary" onclick="buyNow('${p.name.replace(/'/g, "\'")}', ${p.price})">💬 Pesan via WhatsApp</button>
-            <button class="btn btn-ghost" onclick="copyProduct('${p.name.replace(/'/g, "\'")}')">📋 Salin Info</button>
-            <button class="btn btn-ghost" onclick="shareProduct('${p.name.replace(/'/g, "\'")}', ${p.price})">🔗 Share</button>
+            <button class="btn btn-primary" onclick="buyNow('${p.name}', ${p.price})">💬 Pesan via WhatsApp</button>
+            <button class="btn btn-ghost" onclick="copyProduct('${p.name}')">📋 Salin Info</button>
+            <button class="btn btn-ghost" onclick="shareProduct('${p.name}', ${p.price})">🔗 Share</button>
           </div>
         </div>
       </div>
@@ -1019,18 +905,23 @@
     if (target) target.classList.add('active');
     document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === page));
     window.scrollTo(0, 0);
-    if (page === 'products') setTimeout(renderProducts, 300);
-    if (page === 'about') setTimeout(animateStats, 300);
-    if (page === 'blog') renderBlog();
+    if (page === 'products') {
+      setTimeout(renderProducts, 300);
+    }
+    if (page === 'about') {
+      setTimeout(animateStats, 300);
+    }
+    if (page === 'blog') {
+      renderBlog();
+    }
   }
 
   // ============================================================
   // ACTIONS
   // ============================================================
   function buyNow(product, price) {
-    const storeName = activeStore.name || 'Pelangi Furniture';
-    const msg = 'Halo ' + storeName + ', saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + '). Mohon info stok dan cara pemesanannya.';
-    window.open('https://wa.me/' + activeStore.wa + '?text=' + encodeURIComponent(msg), '_blank');
+    const msg = 'Halo Pelangi Furniture, saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + '). Mohon info stok dan cara pemesanannya.';
+    window.open('https://wa.me/6289523047318?text=' + encodeURIComponent(msg), '_blank');
   }
 
   function copyProduct(name) {
@@ -1172,6 +1063,7 @@
     });
   }
 
+
   // ============================================================
   // DATA BLOG
   // ============================================================
@@ -1188,15 +1080,20 @@
         <div class="blog-img" style="height: 280px; margin-bottom: 24px;"><span>📷 Ilustrasi Furniture Minimalis</span></div>
         <h2>7 Tips Memilih Furniture Berkualitas untuk Rumah Minimalis</h2>
         <div class="blog-meta"><span>📅 28 Agustus 2026</span><span>⏱️ 5 menit baca</span><span>🏷️ Tips & Panduan</span></div>
+
         <p>Rumah minimalis memang sedang tren, tapi tantangannya adalah memilih furniture yang fungsional tanpa membuat ruangan terasa sempit. Berikut 7 tips dari Pelangi Furniture untuk Anda:</p>
+
         <h3>1. Ukur Ruangan Terlebih Dahulu</h3>
         <p>Jangan pernah membeli furniture tanpa mengukur ruangan. Catat panjang, lebar, dan tinggi ruangan. Pastikan ada jarak minimal 60 cm untuk lorong lalu lintas agar ruangan tetap nyaman dilewati.</p>
+
         <div class="tip-box">
           <strong>💡 Tips Pelangi:</strong>
           <p>Gunakan selotip di lantai untuk membuat mockup ukuran furniture. Ini membantu Anda membayangkan seberapa besar furniture di ruangan.</p>
         </div>
+
         <h3>2. Pilih Furniture Multifungsi</h3>
         <p>Furniture 2-in-1 sangat cocok untuk rumah minimalis. Contohnya: sofa bed, meja lipat, ottoman dengan storage, atau ranjang dengan laci bawah. Dengan satu item, Anda mendapatkan dua fungsi sekaligus.</p>
+
         <h3>3. Perhatikan Material dan Finishing</h3>
         <p>Furniture berkualitas tidak selalu mahal. Perhatikan:</p>
         <ul>
@@ -1205,14 +1102,19 @@
           <li><strong>Busa density 25+</strong> untuk sofa agar tidak cepat kempes</li>
           <li><strong>Engsel soft-close</strong> menandakan kualitas kabinet yang baik</li>
         </ul>
+
         <h3>4. Warna Netral untuk Kesan Luas</h3>
         <p>Warna putih, krem, abu-abu muda, dan kayu natural memantulkan cahaya lebih baik, menciptakan kesan ruangan yang lebih luas. Anda bisa menambahkan aksen warna melalui bantal, karpet, atau hiasan dinding yang mudah diganti.</p>
+
         <h3>5. Vertical Storage adalah Kunci</h3>
         <p>Manfaatkan dinding! Rak dinding, lemari tinggi, dan kabinet gantung menghemat lantai. Di dapur, gunakan rak piring 3 susun. Di kamar, pilih lemari pakaian full-height.</p>
+
         <h3>6. Jangan Tergiur Harga Murah Semata</h3>
         <p>Harga murah memang menggiurkan, tapi perhitungkan <em>cost per year</em>. Sofa Rp 1 juta yang rusak dalam 1 tahun (Rp 1 juta/tahun) lebih mahal daripada sofa Rp 3 juta yang awet 5 tahun (Rp 600 ribu/tahun).</p>
+
         <h3>7. Beli Bertahap, Bukan Sekaligus</h3>
         <p>Rumah minimalis tidak perlu diisi sekaligus. Prioritaskan kebutuhan: kamar tidur → dapur → ruang tamu. Beli furniture dasar dulu, tambahkan dekorasi pelan-pelan sesuai budget.</p>
+
         <div class="tip-box">
           <strong>🛒 Kesimpulan:</strong>
           <p>Furniture berkualitas untuk rumah minimalis adalah yang <strong>fungsional, proporsional, dan tahan lama</strong>. Kunjungi showroom Pelangi Furniture di Solo untuk konsultasi gratis memilih furniture yang tepat!</p>
@@ -1231,11 +1133,15 @@
         <div class="blog-img" style="height: 280px; margin-bottom: 24px;"><span>📷 Perawatan Sofa</span></div>
         <h2>Cara Merawat Sofa Fabric Agar Tetap Bersih dan Wangi</h2>
         <div class="blog-meta"><span>📅 15 Agustus 2026</span><span>⏱️ 4 menit baca</span><span>🏷️ Perawatan</span></div>
+
         <p>Sofa fabric memang nyaman dan estetik, tapi perawatannya butuh perhatian ekstra. Berikut panduan perawatan sofa fabric dari Pelangi Furniture:</p>
+
         <h3>1. Vacuum Rutin Setiap Minggu</h3>
         <p>Gunakan nozzle brush attachment pada vacuum cleaner. Bersihkan celah-celah sofa, area bawah bantal, dan permukaan secara menyeluruh. Debu yang menumpuk bisa merusak serat kain dan memicu alergi.</p>
+
         <h3>2. Balik Bantal Sofa Setiap 2 Minggu</h3>
         <p>Membalik bantal mencegah deformasi busa dan memastikan keausan merata. Jika sofa Anda memiliki cover removable, cuci sesuai instruksi label (biasanya 3-6 bulan sekali).</p>
+
         <h3>3. Bersihkan Noda Segera</h3>
         <p>Noda yang dibiarkan akan meresap dan sulit dihilangkan. Untuk noda ringan:</p>
         <ul>
@@ -1244,14 +1150,18 @@
           <li>Tepuk-tepuk dengan kain microfiber yang dibasuh larutan</li>
           <li>Keringkan dengan hair dryer jarak 30 cm</li>
         </ul>
+
         <h3>4. Hindari Paparan Sinar Matahari Langsung</h3>
         <p>Sinar UV bisa memudarkan warna kain dan membuatnya rapuh. Posisikan sofa menghindari jendela besar, atau gunakan tirai/tenda jika tidak bisa dihindari.</p>
+
         <h3>5. Gunakan Fabric Protector Spray</h3>
         <p>Semprotkan fabric protector setiap 6 bulan. Produk ini membentuk lapisan pelindung yang membuat noda tidak langsung meresap. Harganya sekitar Rp 100-200 ribu dan sangat worth it untuk sofa mahal.</p>
+
         <div class="tip-box">
           <strong>⚠️ Jangan Lakukan Ini:</strong>
           <p>Hindari mesin cuci untuk sofa non-removable, jangan gunakan pemutih, dan jangan kucek noda dengan kasar — bisa merusak serat kain permanen.</p>
         </div>
+
         <p>Dengan perawatan rutin, sofa fabric Anda bisa awet 5-7 tahun. Pelangi Furniture menyediakan sofa dengan cover removable yang praktis untuk dicuci. Cek katalog kami!</p>
       `
     },
@@ -1267,7 +1177,9 @@
         <div class="blog-img" style="height: 280px; margin-bottom: 24px;"><span>📷 Koleksi Eco-Friendly</span></div>
         <h2>Pelangi Furniture Luncurkan Koleksi Eco-Friendly 2026</h2>
         <div class="blog-meta"><span>📅 5 Agustus 2026</span><span>⏱️ 3 menit baca</span><span>🏷️ Berita</span></div>
+
         <p>Surakarta — Pelangi Furniture & Homeware meluncurkan koleksi terbaru bertajuk <strong>"Green Living"</strong> pada awal Agustus 2026. Koleksi ini menawarkan furniture dengan material ramah lingkungan yang tetap stylish dan fungsional.</p>
+
         <h3>Material Inovatif yang Digunakan</h3>
         <ul>
           <li><strong>Particle board E0 grade</strong> — emisi formaldehida paling rendah di kelasnya, aman untuk kamar anak</li>
@@ -1275,12 +1187,15 @@
           <li><strong>Kayu jati daur ulang</strong> — kayu bekas diolah kembali dengan proses khusus tanpa mengurangi kekuatan</li>
           <li><strong>Packaging biodegradable</strong> — kemasan dari kardus daur ulang dan wrapping dari plastik singkong</li>
         </ul>
+
         <h3>Produk Unggulan Koleksi Green Living</h3>
         <p>Beberapa produk andalan koleksi ini meliputi meja belajar anak dari particle board E0, rak buku modular dari kayu daur ulang, dan kitchen set dengan finishing water-based yang aman untuk kontak makanan.</p>
+
         <div class="tip-box">
           <strong>🌱 Komitmen Kami:</strong>
           <p>Pelangi Furniture berkomitmen mengurangi jejak karbon. Untuk setiap 10 produk Green Living yang terjual, kami akan menanam 1 pohon di kawasan hutan lindung Gunung Lawu.</p>
         </div>
+
         <p>Koleksi Green Living sudah tersedia di showroom Jl. Dr. Rajiman No.661 B dan marketplace Tokopedia. Dapatkan diskon 10% untuk pembelian produk eco-friendly selama bulan Agustus 2026!</p>
       `
     },
@@ -1296,7 +1211,9 @@
         <div class="blog-img" style="height: 280px; margin-bottom: 24px;"><span>📷 Berbagai Jenis Kasur</span></div>
         <h2>Panduan Memilih Kasur yang Tepat Sesuai Kebutuhan Tidur</h2>
         <div class="blog-meta"><span>📅 20 Juli 2026</span><span>⏱️ 6 menit baca</span><span>🏷️ Tips & Panduan</span></div>
+
         <p>Kasur yang salah bisa menyebabkan sakit punggung, insomnia, dan bangun tidak segar. Pelangi Furniture merangkum panduan memilih kasur berdasarkan jenis dan kebutuhan Anda:</p>
+
         <h3>1. Kasur Busa (Foam)</h3>
         <p><strong>Cocok untuk:</strong> Budget terbatas, penggunaan sementara, atau kamar tamu.</p>
         <ul>
@@ -1304,6 +1221,7 @@
           <li><strong>Busa biasa (density 18-20):</strong> Harga murah tapi kempes dalam 1-2 tahun</li>
           <li><strong>Memory foam:</strong> Mengikuti kontur tubuh, cocok untuk penderita nyeri sendi</li>
         </ul>
+
         <h3>2. Spring Bed</h3>
         <p><strong>Cocok untuk:</strong> Penggunaan harian, pasangan, atau yang suka kasur berpegas.</p>
         <ul>
@@ -1311,6 +1229,7 @@
           <li><strong>Bonnell spring:</strong> Harga lebih terjangkau, tapi bisa berbunyi setelah lama</li>
           <li><strong>Hybrid (spring + foam):</strong> Kombinasi terbaik, support dan kenyamanan optimal</li>
         </ul>
+
         <h3>3. Kasur Latex</h3>
         <p><strong>Cocok untuk:</strong> Penderita alergi, yang suka kasur alami, dan budget tinggi.</p>
         <ul>
@@ -1318,6 +1237,7 @@
           <li>Sangat awet (10-15 tahun)</li>
           <li>Harga 2-3x lebih mahal dari busa</li>
         </ul>
+
         <h3>Tips Memilih Ukuran</h3>
         <table class="spec-table" style="margin: 16px 0;">
           <tr><th>Single</th><td>90x200 cm — Cocok untuk anak/remaja</td></tr>
@@ -1325,10 +1245,12 @@
           <tr><th>Queen</th><td>160x200 cm — Pasangan standar</td></tr>
           <tr><th>King</th><td>180x200 cm — Pasangan + 1 anak kecil</td></tr>
         </table>
+
         <div class="tip-box">
           <strong>💡 Tes Kasur di Showroom:</strong>
           <p>Datang ke showroom Pelangi Furniture dan tidurkan posisi favorit Anda selama 10-15 menit. Kasur yang tepat seharusnya tidak membuat punggung melengkung atau bahu terasa tertekan.</p>
         </div>
+
         <p>Pelangi Furniture menyediakan berbagai pilihan kasur mulai dari busa rebonded hingga paket spring bed lengkap dengan divan. Semua produk dilengkapi garansi dan bisa dicoba langsung di showroom.</p>
       `
     },
@@ -1344,17 +1266,24 @@
         <div class="blog-img" style="height: 280px; margin-bottom: 24px;"><span>📷 Layout Dapur Minimalis</span></div>
         <h2>5 Kesalahan Umum Saat Menata Dapur Minimalis</h2>
         <div class="blog-meta"><span>📅 10 Juli 2026</span><span>⏱️ 4 menit baca</span><span>🏷️ Tips & Panduan</span></div>
+
         <p>Dapur minimalis memang tricky. Salah tata letak, dapur jadi tidak fungsional dan bikin frustrasi saat memasak. Berikut 5 kesalahan yang sering terjadi dan solusinya:</p>
+
         <h3>1. Mengabaikan Segitiga Kerja (Work Triangle)</h3>
         <p>Segitiga kerja adalah jarak ideal antara kompor, wastafel, dan kulkas. Idealnya total jarak ketiganya 3.6-6.6 meter. Jika terlalu jauh, Anda capek bolak-balik. Jika terlalu dekat, ruangan terasa sempit dan berbahaya.</p>
+
         <h3>2. Kurang Rak dan Storage Vertikal</h3>
         <p>Kesalahan paling umum: membiarkan dinding kosong. Gunakan rak piring dinding, gantungan alat masak magnetic, dan kabinet tinggi sampai plafon. Vertical storage menggandakan kapasitas penyimpanan tanpa memakan lantai.</p>
+
         <h3>3. Memilih Kitchen Set yang Terlalu Besar</h3>
         <p>Kitchen set 3 meter mungkin terlihat mewah, tapi di dapur 2x2 meter? Bencana. Pilih kitchen set sesuai proporsi. Untuk dapur kecil, kitchen set 120-150 cm + rak dinding sudah cukup.</p>
+
         <h3>4. Warna Gelap yang Membuat Sempit</h3>
         <p>Warna gelap menyerap cahaya. Untuk dapur kecil, pilih warna putih, krem, atau abu-abu muda. Finishing glossy lebih baik dari matte karena memantulkan cahaya. Lantai keramik terang juga membantu.</p>
+
         <h3>5. Tidak Memperhatikan Sirkulasi Udara</h3>
         <p>Dapur tanpa ventilasi baik akan bau, lembab, dan berjamur. Pastikan ada jendela atau exhaust fan. Pilih kitchen set dengan pintu lubang angin atau rak terbuka agar sirkulasi tetap lancar.</p>
+
         <div class="tip-box">
           <strong>✅ Solusi Cepat dari Pelangi:</strong>
           <p>Paket kitchen set minimalis 120 cm + rak piring aluminium 2 susun + meja kompor ROJO = solusi dapur fungsional di bawah Rp 2,5 juta. Semua tahan air, anti karat, dan knock-down (mudah pindah).</p>
@@ -1373,9 +1302,12 @@
         <div class="blog-img" style="height: 280px; margin-bottom: 24px;"><span>📷 Perawatan Lemari Kayu</span></div>
         <h2>Cara Membersihkan Lemari Kayu Agar Bebas Rayap dan Jamur</h2>
         <div class="blog-meta"><span>📅 25 Juni 2026</span><span>⏱️ 5 menit baca</span><span>🏷️ Perawatan</span></div>
+
         <p>Lemari kayu adalah investasi jangka panjang. Dengan perawatan rutin, lemari kayu jati atau mahoni bisa awet 20-30 tahun. Berikut panduan perawatan dari Pelangi Furniture:</p>
+
         <h3>1. Bersihkan Debu Secara Rutin</h3>
         <p>Debu yang menumpuk bisa merusak finishing kayu dan menarik kelembaban. Bersihkan dengan kain microfiber kering setiap minggu. Untuk celah-celah, gunakan kuas halus atau vacuum cleaner dengan nozzle sempit.</p>
+
         <h3>2. Gunakan Polish Kayu 3 Bulan Sekali</h3>
         <p>Polish kayu (seperti beeswax atau minyak jati) melindungi permukaan dan mempertahankan kilau. Caranya:</p>
         <ul>
@@ -1384,6 +1316,7 @@
           <li>Diamkan 15-20 menit</li>
           <li>Buff dengan kain bersih hingga mengkilap</li>
         </ul>
+
         <h3>3. Cegah Rayap dengan Ini</h3>
         <p>Rayap adalah musuh utama furniture kayu. Pencegahan:</p>
         <ul>
@@ -1392,6 +1325,7 @@
           <li>Semprotkan anti rayap di sekitar kaki lemari setiap 6 bulan</li>
           <li>Periksa secara berkala tanda-tanda serbuk kayu (frass) di lantai</li>
         </ul>
+
         <h3>4. Atasi Jamur dengan Cepat</h3>
         <p>Jamur muncul karena kelembaban tinggi. Jika menemukan bintik putih/hijau:</p>
         <ul>
@@ -1400,10 +1334,12 @@
           <li>Keringkan dengan kipas angin atau hair dryer</li>
           <li>Aplikasikan fungicide wood preservative</li>
         </ul>
+
         <div class="tip-box">
           <strong>⚠️ Tanda Lemari Perlu Perhatian:</strong>
           <p>Bau apek, pintu susah dibuka/tutup (kayu mengembang), permukaan lengket, atau suara "krek" dari dalam kayu. Segera periksa sebelum kerusakan menyebar.</p>
         </div>
+
         <p>Untuk Anda yang ingin menghindari masalah rayap, Pelangi Furniture menyediakan lemari dari material aluminium dan plastik PP yang 100% anti rayap. Pilihan praktis untuk area lembap!</p>
       `
     }
@@ -1453,39 +1389,44 @@
   }
 
   // ============================================================
-  // HERO CAROUSEL (auto-slide 10 detik)
+  // REFERRAL TRACKING
   // ============================================================
-  let heroCurrent = 0;
-  const heroSlides = document.querySelectorAll('.hero-slide');
-  const heroDots = document.querySelectorAll('.hero-dot');
-  const totalHeroSlides = heroSlides.length;
+  const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbzgXPsb3B0xgC1TQwkwCPndv0xf_zkiAWCVD6gUW06BzYI-pH9KbIBwFiWzBN9HAapbhA/exec';
+  const urlParams = new URLSearchParams(window.location.search);
+  const refCode = urlParams.get('ref');
 
-  function updateHero() {
-    heroSlides.forEach((s, i) => s.classList.toggle('active', i === heroCurrent));
-    heroDots.forEach((d, i) => d.classList.toggle('active', i === heroCurrent));
+  async function checkReferralStatus() {
+    if (!refCode) return true;
+    if (!GAS_URL_CUSTOMER || !GAS_URL_CUSTOMER.includes('script.google.com')) return true;
+
+    try {
+      const res = await fetch(GAS_URL_CUSTOMER + '?action=checkStatus&ref=' + encodeURIComponent(refCode));
+      const data = await res.json();
+
+      if (data.success && data.active === true) {
+        fetch(GAS_URL_CUSTOMER + '?action=trackClick&ref=' + encodeURIComponent(refCode))
+          .then(() => console.log('Referral click tracked:', refCode))
+          .catch(() => console.log('Tracking failed'));
+        return true;
+      } else {
+        document.getElementById('blocked-ref-code').textContent = refCode;
+        document.getElementById('blocked-overlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        return false;
+      }
+    } catch (err) {
+      console.log('Status check failed, allowing access:', err);
+      return true;
+    }
   }
 
-  function moveHero(dir) {
-    heroCurrent = (heroCurrent + dir + totalHeroSlides) % totalHeroSlides;
-    updateHero();
-  }
-
-  function setHeroSlide(idx) {
-    heroCurrent = idx;
-    updateHero();
-  }
-
-  if (totalHeroSlides > 0) {
-    setInterval(() => moveHero(1), 10000);
-  }
-
-  // ============================================================
+  checkReferralStatus();
+    // ============================================================
   // INIT
   // ============================================================
   initDots();
   setTimeout(renderProducts, 800);
   renderBlog();
-  checkReferralStatus();
 </script>
 
 </body>
