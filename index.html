@@ -938,12 +938,15 @@
     const ref = sessionStorage.getItem('pelangi_ref') || '';
     let msg = 'Halo Pelangi Furniture, saya tertarik dengan produk: *' + product + '* (Rp ' + price.toLocaleString('id-ID') + ').';
     if (store) {
-      msg += '\n\nSaya diarahkan oleh link referral dari toko *' + store + '*';
+      msg += '
+
+Saya diarahkan oleh link referral dari toko *' + store + '*';
     }
     if (ref) {
       msg += ' (Ref: ' + ref + ')';
     }
-    msg += '\nMohon info stok dan cara pemesanannya.';
+    msg += '
+Mohon info stok dan cara pemesanannya.';
     window.open('https://wa.me/6289523047318?text=' + encodeURIComponent(msg), '_blank');
   }
 
@@ -1414,18 +1417,33 @@
   // ============================================================
   // REFERRAL TRACKING (dengan Toko)
   // ============================================================
+  // Ganti URL ini dengan URL Apps Script Anda setelah deploy
+  // ⚠️ PENTING: Ganti URL di bawah ini dengan URL Apps Script Anda setelah deploy!
   const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbyNr1LYLQbyk0s0YS-th8U5Si1MF6X02dh80MQCZMxGcBWEHYPNKsnnbGMj0n73xHa8/exec';
   const urlParams = new URLSearchParams(window.location.search);
   const refCode = urlParams.get('ref');
   let currentStore = sessionStorage.getItem('pelangi_store') || '';
+  let currentRefCode = sessionStorage.getItem('pelangi_ref') || '';
+
+  function showStoreBadge(storeName) {
+    const bar = document.getElementById('store-badge-bar');
+    const nameEl = document.getElementById('store-name');
+    if (bar && nameEl && storeName && storeName !== '-') {
+      nameEl.textContent = storeName;
+      bar.classList.add('active');
+    }
+  }
 
   async function checkReferralStatus() {
+    // Kalau tidak ada ref di URL, cek sessionStorage (dari kunjungan sebelumnya)
     if (!refCode) {
-      // Jika tidak ada ref code, cek apakah ada store tersimpan
       if (currentStore) showStoreBadge(currentStore);
       return true;
     }
-    if (!GAS_URL_CUSTOMER || !GAS_URL_CUSTOMER.includes('script.google.com')) {
+
+    // Kalau URL Apps Script belum diganti (masih placeholder), allow access
+    if (!GAS_URL_CUSTOMER || !GAS_URL_CUSTOMER.includes('script.google.com') || GAS_URL_CUSTOMER.includes('XXXXXXXX')) {
+      console.warn('GAS_URL_CUSTOMER belum diatur. Allowing access.');
       if (currentStore) showStoreBadge(currentStore);
       return true;
     }
@@ -1438,15 +1456,18 @@
         // Simpan toko ke sessionStorage
         if (data.store && data.store !== '-') {
           currentStore = data.store;
+          currentRefCode = refCode;
           sessionStorage.setItem('pelangi_store', data.store);
           sessionStorage.setItem('pelangi_ref', refCode);
           showStoreBadge(data.store);
         }
+        // Track click (fire and forget)
         fetch(GAS_URL_CUSTOMER + '?action=trackClick&ref=' + encodeURIComponent(refCode))
           .then(() => console.log('Referral click tracked:', refCode))
           .catch(() => console.log('Tracking failed'));
         return true;
       } else {
+        // Link inactive
         document.getElementById('blocked-ref-code').textContent = refCode;
         document.getElementById('blocked-overlay').classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -1456,15 +1477,6 @@
       console.log('Status check failed, allowing access:', err);
       if (currentStore) showStoreBadge(currentStore);
       return true;
-    }
-  }
-
-  function showStoreBadge(storeName) {
-    const bar = document.getElementById('store-badge-bar');
-    const nameEl = document.getElementById('store-name');
-    if (bar && nameEl && storeName) {
-      nameEl.textContent = storeName;
-      bar.classList.add('active');
     }
   }
 
