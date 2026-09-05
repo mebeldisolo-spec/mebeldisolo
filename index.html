@@ -287,6 +287,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -712,7 +713,7 @@
 
 <div class="toast" id="toast">Tersalin!</div>
 <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-<a id="sticky-wa" class="sticky-wa" href="https://wa.me/6289523047318" target="_blank">💬 Chat WhatsApp</a>
+<a class="sticky-wa" href="https://wa.me/6289523047318" target="_blank">💬 Chat WhatsApp</a>
 
 <script>
 
@@ -1468,7 +1469,7 @@
   // ============================================================
   // REFERRAL TRACKING (dengan Toko)
   // ============================================================
-  const GAS_URL_CUSTOMER = 'https://script.google.com/macros/s/AKfycbzgXPsb3B0xgC1TQwkwCPndv0xf_zkiAWCVD6gUW06BzYI-pH9KbIBwFiWzBN9HAapbhA/exec';
+  const GAS_URL_CUSTOMER='https://script.google.com/macros/s/AKfycbyNr1LYLQbyk0s0YS-th8U5Si1MF6X02dh80MQCZMxGcBWEHYPNKsnnbGMj0n73xHa8/exec';
   const urlParams = new URLSearchParams(window.location.search);
   const refCode = urlParams.get('ref');
   const OFFICE_PHONE = '6289523047318';
@@ -1490,7 +1491,7 @@
     const nameEl = document.getElementById('store-name');
     const salesEl = document.getElementById('store-sales-name');
     const waBtn = document.getElementById('store-wa-btn');
-    const stickyWa = document.getElementById('sticky-wa') || document.querySelector('.sticky-wa');
+    const stickyWa = document.getElementById('sticky-wa');
 
     if (bar) bar.classList.remove('active');
     if (nameEl) nameEl.textContent = '-';
@@ -1509,11 +1510,9 @@
       return true;
     }
 
-    console.log('[REFERRAL] Checking ref:', refCode);
-
     // Kalau URL Apps Script masih placeholder, allow access tapi tetap pakai data referral dari sessionStorage kalau cocok
     if (!GAS_URL_CUSTOMER || !GAS_URL_CUSTOMER.includes('script.google.com') || GAS_URL_CUSTOMER.includes('XXXXXXXX')) {
-      console.warn('[REFERRAL] GAS_URL_CUSTOMER belum diatur. Allowing access.');
+      console.warn('GAS_URL_CUSTOMER belum diatur. Allowing access.');
       if (currentStore && currentRefCode === refCode) {
         showStoreBadge(currentStore, sessionStorage.getItem('pelangi_sales'), sessionStorage.getItem('pelangi_phone'));
       }
@@ -1523,60 +1522,47 @@
     try {
       const res = await fetch(GAS_URL_CUSTOMER + '?action=checkStatus&ref=' + encodeURIComponent(refCode));
       const data = await res.json();
-      console.log('[REFERRAL] GAS response:', data);
 
       if (data.success && data.active === true) {
-        // Simpan toko & sales ke sessionStorage (selalu simpan, meski store kosong)
-        const storeName = data.store || '-';
-        const salesName = data.name || '';
-        const salesPhone = data.phone || '';
-
-        currentStore = storeName;
-        currentRefCode = refCode;
-        sessionStorage.setItem('pelangi_store', storeName);
-        sessionStorage.setItem('pelangi_ref', refCode);
-        sessionStorage.setItem('pelangi_sales', salesName);
-        sessionStorage.setItem('pelangi_phone', salesPhone);
-
-        // SELALU tampilkan badge kalau referral aktif
-        showStoreBadge(storeName, salesName, salesPhone);
-
+        // Simpan toko & sales ke sessionStorage
+        if (data.store && data.store !== '-') {
+          currentStore = data.store;
+          currentRefCode = refCode;
+          sessionStorage.setItem('pelangi_store', data.store);
+          sessionStorage.setItem('pelangi_ref', refCode);
+          sessionStorage.setItem('pelangi_sales', data.name || '');
+          sessionStorage.setItem('pelangi_phone', data.phone || '');
+          showStoreBadge(data.store, data.name, data.phone);
+        }
         // Track click (fire and forget)
         fetch(GAS_URL_CUSTOMER + '?action=trackClick&ref=' + encodeURIComponent(refCode))
-          .then(() => console.log('[REFERRAL] Click tracked:', refCode))
-          .catch(() => console.log('[REFERRAL] Tracking failed'));
+          .then(() => console.log('Referral click tracked:', refCode))
+          .catch(() => console.log('Tracking failed'));
         return true;
       } else {
         // Link inactive → blokir akses
-        console.log('[REFERRAL] Link inactive:', refCode);
         document.getElementById('blocked-ref-code').textContent = refCode;
         document.getElementById('blocked-overlay').classList.add('active');
         document.body.style.overflow = 'hidden';
         return false;
       }
     } catch (err) {
-      console.error('[REFERRAL] Status check failed:', err);
-      // Fallback: pakai data sessionStorage kalau ada (tidak perlu cek currentRefCode)
-      const savedStore = sessionStorage.getItem('pelangi_store');
-      const savedSales = sessionStorage.getItem('pelangi_sales');
-      const savedPhone = sessionStorage.getItem('pelangi_phone');
-      if (savedStore && savedStore !== '-') {
-        showStoreBadge(savedStore, savedSales, savedPhone);
+      console.log('Status check failed, allowing access:', err);
+      // Fallback: jika ref cocok dengan sessionStorage, tetap tampilkan badge sales
+      if (currentStore && currentRefCode === refCode) {
+        showStoreBadge(currentStore, sessionStorage.getItem('pelangi_sales'), sessionStorage.getItem('pelangi_phone'));
       }
       return true;
     }
   }
 
   function showStoreBadge(storeName, salesName, salesPhone) {
-    console.log('[REFERRAL] showStoreBadge called:', { storeName, salesName, salesPhone });
-
     const bar = document.getElementById('store-badge-bar');
     const nameEl = document.getElementById('store-name');
     const salesEl = document.getElementById('store-sales-name');
     const waBtn = document.getElementById('store-wa-btn');
-    const stickyWa = document.getElementById('sticky-wa') || document.querySelector('.sticky-wa');
+    const stickyWa = document.getElementById('sticky-wa');
 
-    // Tampilkan badge bar kalau storeName valid
     if (bar && nameEl && storeName && storeName !== '-') {
       nameEl.textContent = storeName;
       bar.classList.add('active');
@@ -1586,14 +1572,9 @@
       salesEl.textContent = 'Sales: ' + salesName;
     }
 
-    // Pilih nomor WA: salesPhone kalau ada isinya, kalau tidak fallback ke kantor
-    // PERHATIAN: string kosong "" adalah falsy, jadi || akan fallback. 
-    // Kalau phone memang sengaja dikosongkan, akan ke kantor.
-    const targetPhone = (salesPhone && salesPhone.trim().length > 0) ? salesPhone.trim() : OFFICE_PHONE;
+    // Update semua tombol WA ke nomor sales (jika ada), kalau tidak fallback ke kantor
+    const targetPhone = salesPhone || OFFICE_PHONE;
     const waUrl = 'https://wa.me/' + targetPhone;
-
-    console.log('[REFERRAL] WA target:', targetPhone, 'URL:', waUrl);
-
     if (waBtn) {
       waBtn.href = waUrl;
       waBtn.style.display = 'inline-block';
